@@ -10,7 +10,7 @@ This project is an **asynchronous Telegram bot** designed to fetch and compare l
 ## 🧠 Features
 
 - 📉 **Live rate comparison** from:
-  - **Abcex.io** (`USDTRUB` ask price)
+  - **Rapira.net** (`USDTRUB` ask price)
   - **Central Bank of Russia (CBR)** (official XML daily rates)
   - **ProFinance** (custom parser)
   - **Investing.com** (WebSocket live ticker)
@@ -40,7 +40,7 @@ This project is an **asynchronous Telegram bot** designed to fetch and compare l
 ```text
 📊 Rates Summary 📈
 
-🔹 ABC rate: 92.4567
+🔹 Rapira rate: 92.4567
 
 🔸 CBR rate: 91.8976 | Spread: 0.6048%
 🔸 ProFinance rate: 91.6000 | Spread: 0.9277%
