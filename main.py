@@ -2,48 +2,45 @@ import asyncio
 from aiogram import Bot, Dispatcher, types, Router
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.filters.command import Command
-from test2 import CBRFetcher
+from cbr import CBRFetcher
 from profinance import ProFinanceFetcher
-from abcex import AbcexFetcher
+from rapira import RapiraFetcher
 from invest_rep import InvestingFetcher
+import threading
 
 
 # Ваш Telegram токен (замените на свой)
-TOKEN = ""
+TOKEN = "TOKEN"
 
 
 # Инициализация бота
 bot = Bot(token=TOKEN)
-dp = Dispatcher()  # Используем новый Dispatcher
-router = Router()  # Создаем Router() вместо старого подхода
-# Кнопки меню
-# Кнопки меню
+dp = Dispatcher()
+router = Router()  
 keyboard = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="📉 Rates")]  # Добавлена иконка 📉 для визуального улучшения
+        [KeyboardButton(text="📉 Rates")] 
     ],
     resize_keyboard=True
 )
 
 investing_fetcher = InvestingFetcher()
 async def get_all_rates():
-    """Функция собирает курсы из всех источников"""
     cbr_fetcher = CBRFetcher()
     profinance_fetcher = ProFinanceFetcher()
-    abcex_fetcher = AbcexFetcher()
-    # investing_fetcher = InvestingFetcher()
+    abcex_fetcher = RapiraFetcher()
+
 
     # Запускаем запросы одновременно
-    cbr_rate, profinance_rate, abcex_rate, investing_rate = await asyncio.gather(
+    cbr_rate, profinance_rate, abcex_rate = await asyncio.gather(
         cbr_fetcher.fetch_exchange_rate(),
         profinance_fetcher.fetch_exchange_rate(),
         abcex_fetcher.fetch_exchange_rate(),
-        investing_fetcher.get_last_numeric()
     )
+    investing_rate = investing_fetcher.get_last_numeric()
 
     print(abcex_rate, cbr_rate, profinance_rate, investing_rate)
 
-    # Преобразуем курсы в float
     try:
         abcex_rate = float(abcex_rate)
         cbr_rate = float(cbr_rate)
@@ -60,7 +57,7 @@ async def get_all_rates():
     message = f"""
 📊 *Rates Summary* 📈
 
-🔹 *ABC rate:* `{abcex_rate:.4f}`
+🔹 *Rapira rate:* `{abcex_rate:.4f}`
 
 🔸 *CBR rate:* `{cbr_rate:.4f}` | *Spread:* `{cbr_spread:.4f}%`
 🔸 *ProFinance rate:* `{profinance_rate:.4f}` | *Spread:* `{profinance_spread:.4f}%`
@@ -85,9 +82,9 @@ async def send_rates(message: types.Message):
 
 async def main():
     """Запуск бота"""
-    dp.include_router(router)  # Подключаем Router() к Dispatcher
+    dp.include_router(router) 
 
-    asyncio.create_task(investing_fetcher.start_fetcher())
+    threading.Thread(target=investing_fetcher.run, daemon=True).start()
 
     await dp.start_polling(bot)
 
